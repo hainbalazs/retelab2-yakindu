@@ -41,7 +41,7 @@ public class Main {
 				State state = (State) content;
 				System.out.println(state.getName());
 				
-				if(state.getName() == "" || state.getName().isEmpty()) {
+				if(state.getName().isBlank() || state.getName().isEmpty()) {
 					String name = "after" + prev.toString();
 					emptyState.put(state, name);
 					System.out.println("State with empty name found, proposed name: " + name);

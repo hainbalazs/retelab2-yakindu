@@ -1,13 +1,11 @@
 package hu.bme.mit.yakindu.analysis.workhere;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
 import org.junit.Test;
-import org.yakindu.sct.model.sgraph.CompositeElement;
 import org.yakindu.sct.model.sgraph.State;
 import org.yakindu.sct.model.sgraph.Statechart;
 import org.yakindu.sct.model.sgraph.Transition;
@@ -25,7 +23,6 @@ public class Main {
 		ModelManager manager = new ModelManager();
 		Model2GML model2gml = new Model2GML();
 		ArrayList<State> trappedStates = new ArrayList<>();
-		HashMap<State, String> emptyState = new HashMap<>();
 		
 		// Loading model
 		EObject root = manager.loadModel("model_input/example.sct");
@@ -33,19 +30,11 @@ public class Main {
 		// Reading model
 		Statechart s = (Statechart) root;
 		TreeIterator<EObject> iterator = s.eAllContents();
-		EObject prev = null;
 		while (iterator.hasNext()) {
 			EObject content = iterator.next();
-			
 			if(content instanceof State) {
 				State state = (State) content;
 				System.out.println(state.getName());
-				
-				if(state.getName() == "" || state.getName().isEmpty()) {
-					String name = "after" + prev.toString();
-					emptyState.put(state, name);
-					System.out.println("State with empty name found, proposed name: " + name);
-				}
 				
 				// Collecting states w/o outgoing transitions
 				EList<Transition> t = state.getOutgoingTransitions();
@@ -59,8 +48,6 @@ public class Main {
 									+ " -> " 
 									+ trans.getTarget().getName());
 			}
-			
-			prev = content;
 		}
 		
 		//Printing the names of states w/o outgoing transitions
