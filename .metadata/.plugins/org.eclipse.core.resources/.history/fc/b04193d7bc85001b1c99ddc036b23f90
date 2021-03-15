@@ -1,0 +1,141 @@
+package hu.bme.mit.yakindu.analysis.workhere;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.TreeIterator;
+import org.eclipse.emf.ecore.EObject;
+import org.junit.Test;
+import org.yakindu.sct.model.sgraph.CompositeElement;
+import org.yakindu.sct.model.sgraph.State;
+import org.yakindu.sct.model.sgraph.Statechart;
+import org.yakindu.sct.model.sgraph.Transition;
+import org.yakindu.sct.model.stext.stext.EventDefinition;
+import org.yakindu.sct.model.stext.stext.VariableDefinition;
+
+import hu.bme.mit.model2gml.Model2GML;
+import hu.bme.mit.yakindu.analysis.RuntimeService;
+import hu.bme.mit.yakindu.analysis.TimerService;
+import hu.bme.mit.yakindu.analysis.example.ExampleStatemachine;
+import hu.bme.mit.yakindu.analysis.modelmanager.ModelManager;
+
+public class Main {
+	@Test
+	public void test() {
+		main(new String[0]);
+	}
+	
+	public static String capitalize(String s) {
+		char title = Character.toUpperCase(s.charAt(0));
+		String rest = s.substring(1);
+		
+		return title + rest;
+		
+	}
+	
+	public static void main(String[] args) {
+		ModelManager manager = new ModelManager();
+		Model2GML model2gml = new Model2GML();
+		ArrayList<String> variables = new ArrayList<>();
+		ArrayList<String> events = new ArrayList<>();
+		
+		// Loading model
+		EObject root = manager.loadModel("model_input/example.sct");
+		
+		// Reading model
+		Statechart s = (Statechart) root;
+		TreeIterator<EObject> iterator = s.eAllContents();
+		EObject prev = null;
+		// Collecting variables and events
+		while (iterator.hasNext()) {
+			EObject content = iterator.next();
+			if(content instanceof VariableDefinition) {
+				VariableDefinition vd = (VariableDefinition) content;
+				variables.add(capitalize(vd.getName()));
+			}
+			if(content instanceof EventDefinition) {
+				EventDefinition ed = (EventDefinition) content;
+				events.add(ed.getName());
+			}
+			
+		}
+		String ident = "";
+		// Generating code
+		System.out.println(ident + "public class RunStatechart {");
+		ident += "\t";
+		System.out.println(ident + "public static void main(String[] args) throws IOException {");
+		ident += "\t";
+		System.out.println(ident + "ExampleStatemachine s = new ExampleStatemachine();");
+		System.out.println(ident + "s.setTimer(new TimerService());");
+		System.out.println(ident + "RuntimeService.getInstance().registerStatemachine(s, 200);");
+		System.out.println(ident + "s.init();");
+		System.out.println(ident + "s.enter();");
+		System.out.println(ident + "s.runCycle();");
+		System.out.println(ident + "while(true) {");
+		ident += "\t";
+		System.out.println(ident + "readcommand();");
+		System.out.println(ident + "print();");
+		ident = ident.substring(0, ident.length() - 2);
+		//end of while
+		System.out.println(ident + "}");
+		System.out.println(ident + "System.exit(0);");
+		//ident = ident.substring(0, ident.length() - 2);
+		//end of main
+		System.out.println(ident + "}");
+		System.out.println(ident + "public static void print(IExampleStatemachine s) {");
+		ident += "\t";
+		for(String var : variables) {
+			System.out.print(ident + "System.out.println(\"");
+			System.out.print(var.charAt(0));
+			System.out.println("= \" + s.getSCInterface().get" + var +"());");
+		}
+		ident = ident.substring(0, ident.length() - 2);
+		// end of print
+		System.out.println(ident + "}");
+		System.out.println(ident + "public static void readcommand(IExampleStatemachine s) {");
+		ident += "\t";
+		System.out.println(ident + "Scanner reader = new Scanner(System.in);");
+		System.out.println(ident + "String cmd = reader.nextLine();");
+		System.out.println(ident + "if(cmd.equals(\"exit\"))");
+		ident += "\t";
+		System.out.println(ident + "System.exit(0);");
+		ident = ident.substring(0, ident.length() - 2);
+		System.out.println(ident + "else {");
+		ident += "\t";
+		System.out.println(ident + "switch(cmd) {");
+		ident += "\t";
+		for(String e : events) {
+			System.out.println(ident + "case \""+ e +"\" :");
+			ident += "\t";
+			System.out.println(ident + "s.raise" + capitalize(e) + "();");
+			System.out.println(ident + "s.runCycle();");
+			System.out.println(ident + "break;");
+			//ident = ident.substring(0, ident.length() - 2);
+		}
+		System.out.println(ident + "default:");
+		ident += "\t";
+		System.out.println(ident + "System.out.println(\"That's not a valid event.\");");
+		System.out.println(ident + "break;");
+		ident = ident.substring(0, ident.length() - 2);
+		// end of switch
+		System.out.println(ident + "}");
+		ident = ident.substring(0, ident.length() - 2);
+		// end of else
+		System.out.println(ident + "}");
+		ident = ident.substring(0, ident.length() - 2);
+		// end of readcommand
+		System.out.println(ident + "}");
+		ident = ident.substring(0, ident.length() - 2);
+		//end of class
+		System.out.println(ident + "}");
+		System.out.println(ident + "");
+			
+		
+		// Transforming the model into a graph representation
+		String content = model2gml.transform(root);
+		// and saving it
+		manager.saveFile("model_output/graph.gml", content);
+	}
+}
