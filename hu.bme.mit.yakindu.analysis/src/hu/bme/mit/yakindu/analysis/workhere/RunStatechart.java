@@ -1,8 +1,6 @@
 package hu.bme.mit.yakindu.analysis.workhere;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Scanner;
 
 import hu.bme.mit.yakindu.analysis.RuntimeService;
@@ -22,6 +20,10 @@ public class RunStatechart {
 			System.exit(0);
 		else {
 			switch(command) {
+			case "start":
+				s.raiseStart();
+				s.runCycle();
+				break;
 			case "white":
 				s.raiseWhite();
 				s.runCycle();
