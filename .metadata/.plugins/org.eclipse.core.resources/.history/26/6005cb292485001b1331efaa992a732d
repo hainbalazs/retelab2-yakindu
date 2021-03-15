@@ -11,8 +11,6 @@ import org.yakindu.sct.model.sgraph.CompositeElement;
 import org.yakindu.sct.model.sgraph.State;
 import org.yakindu.sct.model.sgraph.Statechart;
 import org.yakindu.sct.model.sgraph.Transition;
-import org.yakindu.sct.model.stext.stext.EventDefinition;
-import org.yakindu.sct.model.stext.stext.VariableDefinition;
 
 import hu.bme.mit.model2gml.Model2GML;
 import hu.bme.mit.yakindu.analysis.modelmanager.ModelManager;
@@ -38,15 +36,8 @@ public class Main {
 		EObject prev = null;
 		while (iterator.hasNext()) {
 			EObject content = iterator.next();
-			if(content instanceof VariableDefinition) {
-				VariableDefinition vd = (VariableDefinition) content;
-				System.out.println("Variable found, name: " + vd.getName());
-			}
-			if(content instanceof EventDefinition) {
-				EventDefinition ed = (EventDefinition) content;
-				System.out.println("Event found, name: " + ed.getName());
-			}
-			/*if(content instanceof State) {
+			
+			if(content instanceof State) {
 				State state = (State) content;
 				System.out.println(state.getName());
 				
@@ -69,14 +60,14 @@ public class Main {
 									+ trans.getTarget().getName());
 			}
 			
-			prev = content;*/
+			prev = content;
 		}
 		
 		//Printing the names of states w/o outgoing transitions
-		/*System.out.println("states w/o outgoing transitions: ");
+		System.out.println("states w/o outgoing transitions: ");
 		for(State st: trappedStates) {
 			System.out.println(st.getName());
-		}*/
+		}
 		
 		// Transforming the model into a graph representation
 		String content = model2gml.transform(root);
