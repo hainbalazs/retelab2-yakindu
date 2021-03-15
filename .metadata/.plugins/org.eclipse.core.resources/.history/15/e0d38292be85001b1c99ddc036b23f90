@@ -3,7 +3,6 @@ package hu.bme.mit.yakindu.analysis.workhere;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Scanner;
 
 import hu.bme.mit.yakindu.analysis.RuntimeService;
 import hu.bme.mit.yakindu.analysis.TimerService;
@@ -15,26 +14,28 @@ import hu.bme.mit.yakindu.analysis.example.IExampleStatemachine;
 public class RunStatechart {
 	
 	public static void readUserEvents(ExampleStatemachine s){
-		Scanner reader = new Scanner(System.in);
-		String command = reader.nextLine();
-	
-		if(command.equals("exit"))
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		String command;
+		try {
+			command = reader.readLine();
+		} catch (IOException e) {
+			System.out.println("That's not a valid input.");
+			return;
+		}		
+		
+		if(command.contentEquals("black")) {
+			s.raiseBlack();
+			s.runCycle();
+		} else if(command.contentEquals("white")) {
+			s.raiseWhite();
+			s.runCycle();
+		} else if(command.contentEquals("exit")) {
 			System.exit(0);
-		else {
-			switch(command) {
-			case "white":
-				s.raiseWhite();
-				s.runCycle();
-				break;
-			case "black": 
-				s.raiseBlack();
-				s.runCycle();
-				break;
-			default:
-				System.out.println("That's not a valid event.");
-				break;
-			}
+		} else {
+			System.out.println("That's not a valid event.");
 		}
+		
+		print(s);
 	}
 	
 	public static void main(String[] args) throws IOException {
@@ -44,10 +45,14 @@ public class RunStatechart {
 		s.init();
 		s.enter();
 		s.runCycle();
-		while (true) {
-			readUserEvents(s);
-			print(s);
-		}
+		print(s);
+		s.raiseStart();
+		s.runCycle();
+		readUserEvents(s);
+		s.raiseWhite();
+		s.runCycle();
+		print(s);
+		System.exit(0);
 	}
 
 	public static void print(IExampleStatemachine s) {

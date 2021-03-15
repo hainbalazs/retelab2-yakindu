@@ -94,7 +94,7 @@ public class Main {
 		indent = indent.substring(0, indent.length() - 1);
 		// end of print
 		System.out.println(indent + "}");
-		System.out.println(indent + "public static void readcommand(IExampleStatemachine s) {");
+		System.out.println(indent + "public static void readcommand(IExampleStatemachine s) throws IOException {");
 		indent += "\t";
 		System.out.println(indent + "Scanner reader = new Scanner(System.in);");
 		System.out.println(indent + "String cmd = reader.nextLine();");
